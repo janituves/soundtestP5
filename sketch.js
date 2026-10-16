@@ -10,9 +10,11 @@ function setAngles(e) {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textSize(24);
-  window.addEventListener('deviceorientationabsolute', (e) => {
-    absolute = true;
-    setAngles(e);
+   window.addEventListener('deviceorientationabsolute', (e) => {
+    if (e.alpha !== null) {
+      absolute = true;
+      setAngles(e);
+    }
   });
   window.addEventListener('deviceorientation', (e) => {
     if (!absolute) setAngles(e);
