@@ -1,31 +1,24 @@
-let q = [0, 0, 0, 1];
-let status = 'starting';
+let alpha = 0, beta = 0, gamma = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textSize(24);
-  try {
-    const sensor = new AbsoluteOrientationSensor({ frequency: 60 });
-    sensor.addEventListener('reading', () => {
-      q = sensor.quaternion;
-      status = 'running';
-    });
-    sensor.addEventListener('error', (e) => {
-      status = 'error: ' + e.error.name;
-    });
-    sensor.start();
-  } catch (e) {
-    status = 'failed: ' + e.name;
-  }
+  window.addEventListener('deviceorientation', (e) => {
+    alpha = e.alpha || 0;
+    beta = e.beta || 0;
+    gamma = e.gamma || 0;
+  });
 }
 
 function draw() {
   background(30);
   fill(255);
-  const [x, y, z, w] = q;
-  const topUp = 2 * (y * z + x * w);
-  const screenUp = 1 - 2 * (x * x + y * y);
-  text('sensor: ' + status, 20, 60);
-  text('top up: ' + topUp.toFixed(2), 20, 120);
-  text('screen up: ' + screenUp.toFixed(2), 20, 160);
+  const b = beta * Math.PI / 180;
+  const g = gamma * Math.PI / 180;
+  const topUp = Math.sin(b);
+  const screenUp = Math.cos(b) * Math.cos(g);
+  text('raw beta: ' + beta.toFixed(0), 20, 60);
+  text('raw gamma: ' + gamma.toFixed(0), 20, 100);
+  text('top up: ' + topUp.toFixed(2), 20, 180);
+  text('screen up: ' + screenUp.toFixed(2), 20, 220);
 }
