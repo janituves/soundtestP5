@@ -1,6 +1,7 @@
+let ctx = null;
+let events = 0;
 let lastT = 0;
 let dt = 0;
-let ctx = null;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -9,6 +10,7 @@ function setup() {
     const now = performance.now();
     dt = now - lastT;
     lastT = now;
+    events++;
   });
 }
 
@@ -18,6 +20,7 @@ function startAudio() {
   ctx.resume();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
+  osc.frequency.value = 440;
   gain.gain.value = 0.1;
   osc.connect(gain).connect(ctx.destination);
   osc.start();
@@ -30,15 +33,11 @@ function mouseReleased() { startAudio(); }
 function draw() {
   background(30);
   fill(255);
-  text('ms between sensor events: ' + dt.toFixed(1), 20, 60);
+  text('motion events: ' + events, 20, 60);
+  text('ms between events: ' + dt.toFixed(1), 20, 100);
   if (!ctx) {
-    text('tap the screen to start audio', 20, 120);
+    text('tap the screen to start audio', 20, 160);
   } else {
-    const base = ctx.baseLatency ? ctx.baseLatency * 1000 : 0;
-    const out = ctx.outputLatency ? ctx.outputLatency * 1000 : 0;
-    text('base latency ms: ' + base.toFixed(1), 20, 120);
-    text('output latency ms: ' + out.toFixed(1), 20, 160);
-    text('sample rate: ' + ctx.sampleRate, 20, 200);
-    text('audio state: ' + ctx.state, 20, 240);
+    text('audio state: ' + ctx.state, 20, 160);
   }
 }
