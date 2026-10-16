@@ -1,24 +1,31 @@
-let rx = 0, ry = 0, rz = 0;
+let q = [0, 0, 0, 1];
+let status = 'starting';
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textSize(24);
-  window.addEventListener('devicemotion', (e) => {
-    const r = e.rotationRate;
-    if (r) {
-      rx = r.alpha || 0;
-      ry = r.beta || 0;
-      rz = r.gamma || 0;
-    }
-  });
+  try {
+    const sensor = new AbsoluteOrientationSensor({ frequency: 60 });
+    sensor.addEventListener('reading', () => {
+      q = sensor.quaternion;
+      status = 'running';
+    });
+    sensor.addEventListener('error', (e) => {
+      status = 'error: ' + e.error.name;
+    });
+    sensor.start();
+  } catch (e) {
+    status = 'failed: ' + e.name;
+  }
 }
 
 function draw() {
   background(30);
   fill(255);
-  const total = abs(rx) + abs(ry) + abs(rz);
-  text('rate alpha: ' + rx.toFixed(1), 20, 60);
-  text('rate beta: ' + ry.toFixed(1), 20, 100);
-  text('rate gamma: ' + rz.toFixed(1), 20, 140);
-  text('total movement: ' + total.toFixed(1), 20, 200);
+  const [x, y, z, w] = q;
+  const topUp = 2 * (y * z + x * w);
+  const screenUp = 1 - 2 * (x * x + y * y);
+  text('sensor: ' + status, 20, 60);
+  text('top up: ' + topUp.toFixed(2), 20, 120);
+  text('screen up: ' + screenUp.toFixed(2), 20, 160);
 }
